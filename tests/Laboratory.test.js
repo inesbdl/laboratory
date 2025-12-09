@@ -48,3 +48,34 @@ test ('voir la quantité d une substance avec un nom invalide pas string', ()=>{
     const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
     expect(()=> labo.getQuantity(1)).toThrow("Veuillez entrer un nom de substance valide")  
 })
+
+
+// ajout quantité
+test("ajout quantité substance existante", ()=>{
+    const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
+    labo.add("Substance1", 2)
+    labo.add("Substance1", 2)
+    expect(()=> labo.getQuantity("Substance1").toEqual(4))
+})
+
+test("ajout quantité substance non existante", ()=>{
+    const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
+    expect(()=> labo.add("Substance123", 2).toThrow("La substance 'Substance123' n'existe pas"))
+})
+test("ajout quantité substance nom null", ()=>{
+    const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
+    expect(()=> labo.add(null, 2).toThrow("Veuillez entrer un nom de substance"))
+})
+test("ajout quantité substance nom pas string", ()=>{
+    const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
+    expect(()=> labo.add({name:"coucou"}, 2).toThrow("Veuillez entrer un nom de substance valide"))
+})
+
+test("ajout quantité substance qte null", ()=>{
+    const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
+    expect(()=> labo.add("Substance1", null).toThrow("Veuillez entrer un quantité"))
+})
+test("ajout quantité substance qte invalide", ()=>{
+    const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
+    expect(()=> labo.add("Substance1", []).toThrow("Veuillez entrer une quantité valide"))
+})
