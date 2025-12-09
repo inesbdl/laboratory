@@ -73,7 +73,7 @@ test("ajout quantité substance nom pas string", ()=>{
 
 test("ajout quantité substance qte null", ()=>{
     const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
-    expect(()=> labo.add("Substance1", null).toThrow("Veuillez entrer un quantité"))
+    expect(()=> labo.add("Substance1", null).toThrow("Veuillez entrer une quantité"))
 })
 test("ajout quantité substance qte invalide", ()=>{
     const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
