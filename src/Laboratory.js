@@ -9,6 +9,12 @@ class Laboratory{
             this.substances[substance] = 0
         });
     }
+
+    getQuantity(substance) {
+
+
+        return this.substances[substance]
+    }
     
 }
 
