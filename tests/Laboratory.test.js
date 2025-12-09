@@ -15,16 +15,16 @@ test('initialisation du laboratoire', () => {
 });
 
 test('initialisation du laboratoire type nom invalide', ()=>{
-    expect(new Laboratory(true,["Substance1", "Substance2", "Substance3"]) ).toThrow("Veuillez entre un nom de laboratoire valide") 
+    expect(() => new Laboratory(true,["Substance1", "Substance2", "Substance3"]) ).toThrow("Veuillez entrer un nom de laboratoire valide") 
 })
 test('initialisation du laboratoire nom vide', ()=>{
-    expect(new Laboratory(null,["Substance1", "Substance2", "Substance3"]) ).toThrow("Veuillez entre un nom de laboratoire") 
+    expect(() => new Laboratory(null,["Substance1", "Substance2", "Substance3"]) ).toThrow("Veuillez entrer un nom de laboratoire") 
 })
 test('initialisation du laboratoire sans substances', ()=>{
-    expect(new Laboratory("My laboratory",[]) ).toThrow("Veuillez entrer au moins une substance") 
+    expect(() => new Laboratory("My laboratory",[]) ).toThrow("Veuillez entrer au moins une substance") 
 })
 test('initialisation du laboratoire type substance invalide', ()=>{
-    expect(new Laboratory("My laboratory",[1,true]) ).toThrow("Veuillez entrer des nomsd de substance valides") 
+    expect(() => new Laboratory("My laboratory",[1,true]) ).toThrow("Veuillez entrer des noms de substance valides") 
 })
 
 // Récupérer la quantité
