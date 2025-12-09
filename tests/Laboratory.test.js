@@ -34,5 +34,5 @@ test ('voir la quantité d une substance avec un nom invalide null', ()=>{
 
 test ('voir la quantité d une substance avec un nom invalide pas string', ()=>{
     const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
-    expect(()=> labo.getQuantity(Number(1))).toThrow("Veuillez entrer un nom de substance valide")  
+    expect(()=> labo.getQuantity(1)).toThrow("Veuillez entrer un nom de substance valide")  
 })
