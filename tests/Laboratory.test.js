@@ -6,12 +6,12 @@ const { Laboratory } = require('../src/Laboratory.js');
 test('initialisation du laboratoire', () => {
     const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])    
 
-  expect(labo.name).toBe("My laboratory");
-  expect(labo.substances).toEqual({
+    expect(labo.name).toBe("My laboratory");
+    expect(labo.substances).toEqual({
     Substance1 : 0,
     Substance2 : 0,
     Substance3 : 0
-  })
+    })
 });
 
 test('initialisation du laboratoire type nom invalide', ()=>{
@@ -31,7 +31,7 @@ test('initialisation du laboratoire type substance invalide', ()=>{
 
 test("voir la quantité d'une substance existante", ()=> {
     const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
-    expect(labo.getQuantity("Substance1")).toBe(0)  
+    expect(labo.getQuantity("Substance1")).toBe(0)
 })
 
 test("voir la quantité d'une substance qui n'existe pas", ()=>{
@@ -58,10 +58,10 @@ test("ajout quantité substance existante", ()=>{
     expect(()=> labo.getQuantity("Substance1").toEqual(4))
 })
 
-test("ajout quantité substance non existante", ()=>{
-    const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
-    expect(()=> labo.add("Substance123", 2).toThrow("La substance 'Substance123' n'existe pas"))
-})
+// test("ajout quantité substance non existante", ()=>{
+//     const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
+//     expect(()=> labo.add("Substance123", 2).toThrow("La substance 'Substance123' n'existe pas"))
+// })
 test("ajout quantité substance nom null", ()=>{
     const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
     expect(()=> labo.add(null, 2).toThrow("Veuillez entrer un nom de substance"))
@@ -78,4 +78,12 @@ test("ajout quantité substance qte null", ()=>{
 test("ajout quantité substance qte invalide", ()=>{
     const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
     expect(()=> labo.add("Substance1", []).toThrow("Veuillez entrer une quantité valide"))
+})
+
+
+// ajout produit stock
+test("ajout nouveau produit stock", ()=>{
+    const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
+    labo.add("Substance123", 2)
+    expect(labo.getQuantity("Substance123")).toEqual(2)
 })
