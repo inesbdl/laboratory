@@ -376,3 +376,171 @@ test('doublon de substance dans une reaction', () => {
         )
     ).toThrow("Une reaction ne peut pas contenir deux fois la meme substance")
 })
+
+// methode make
+
+test('make produit la quantité demandée si stock suffisant', () => {
+    const reactions = {
+        ProduitA: [
+            [2, "Substance1"],
+            [1, "Substance2"]
+        ]
+    }
+
+    const labo = new Laboratory(
+        "Lab",
+        ["Substance1", "Substance2"],
+        reactions
+    )
+
+    labo.add("Substance1", 10)
+    labo.add("Substance2", 10)
+
+    const produced = labo.make("ProduitA", 3)
+
+    expect(produced).toBe(3)
+    expect(labo.getQuantity("Substance1")).toBe(4)
+    expect(labo.getQuantity("Substance2")).toBe(7)
+    expect(labo.getQuantity("ProduitA")).toBe(3)
+})
+
+
+// pas asseez de composants
+test('make produit le maximum possible si stock insuffisant', () => {
+    const reactions = {
+        ProduitA: [
+            [2, "Substance1"],
+            [1, "Substance2"]
+        ]
+    }
+
+    const labo = new Laboratory(
+        "Lab",
+        ["Substance1", "Substance2"],
+        reactions
+    )
+
+    labo.add("Substance1", 5)
+    labo.add("Substance2", 10)
+
+    const produced = labo.make("ProduitA", 10)
+
+    expect(produced).toBe(2)
+    expect(labo.getQuantity("Substance1")).toBe(1)
+    expect(labo.getQuantity("Substance2")).toBe(8)
+    expect(labo.getQuantity("ProduitA")).toBe(2)
+})
+
+
+// stock null
+test('make ne produit rien si une substance est absente du stock', () => {
+    const reactions = {
+        ProduitA: [
+            [1, "Substance1"],
+            [1, "Substance2"]
+        ]
+    }
+
+    const labo = new Laboratory(
+        "Lab",
+        ["Substance1", "Substance2"],
+        reactions
+    )
+
+    labo.add("Substance1", 10)
+
+    const produced = labo.make("ProduitA", 5)
+
+    expect(produced).toBe(0)
+    expect(labo.getQuantity("Substance1")).toBe(10)
+    expect(labo.getQuantity("ProduitA")).toBe(0)
+})
+
+
+// pdt inconnu
+test('make avec un produit sans reaction', () => {
+    const labo = new Laboratory(
+        "Lab",
+        ["Substance1", "Substance2"],
+        {}
+    )
+
+    expect(() =>
+        labo.make("ProduitInconnu", 1)
+    ).toThrow("Aucune reaction pour ce produit")
+})
+
+
+// validation params
+test('make avec nom de produit null', () => {
+    const labo = new Laboratory("Lab", ["Substance1"])
+
+    expect(() =>
+        labo.make(null, 1)
+    ).toThrow("Veuillez entrer un nom de produit")
+})
+
+test('make avec nom de produit non string', () => {
+    const labo = new Laboratory("Lab", ["Substance1"])
+
+    expect(() =>
+        labo.make(123, 1)
+    ).toThrow("Veuillez entrer un nom de produit valide")
+})
+
+test('make avec quantité nulle', () => {
+    const reactions = {
+        ProduitA: [
+            [1, "Substance1"],
+            [1, "Substance2"]
+        ]
+    }
+
+    const labo = new Laboratory(
+        "Lab",
+        ["Substance1", "Substance2"],
+        reactions
+    )
+
+    expect(() =>
+        labo.make("ProduitA", null)
+    ).toThrow("Veuillez entrer une quantité")
+})
+
+test('make avec quantité non numerique', () => {
+    const reactions = {
+        ProduitA: [
+            [1, "Substance1"],
+            [1, "Substance2"]
+        ]
+    }
+
+    const labo = new Laboratory(
+        "Lab",
+        ["Substance1", "Substance2"],
+        reactions
+    )
+
+    expect(() =>
+        labo.make("ProduitA", "2")
+    ).toThrow("Veuillez entrer une quantité valide")
+})
+
+test('make avec quantité negative', () => {
+    const reactions = {
+        ProduitA: [
+            [1, "Substance1"],
+            [1, "Substance2"]
+        ]
+    }
+
+    const labo = new Laboratory(
+        "Lab",
+        ["Substance1", "Substance2"],
+        reactions
+    )
+
+    expect(() =>
+        labo.make("ProduitA", -1)
+    ).toThrow("La quantité doit être strictement positive")
+})
