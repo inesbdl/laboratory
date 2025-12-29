@@ -87,3 +87,20 @@ test("ajout nouveau produit stock", ()=>{
     labo.add("Substance123", 2)
     expect(labo.getQuantity("Substance123")).toEqual(2)
 })
+
+
+test("ajout nouveau produit nom null", () => {
+    const labo = new Laboratory("My laboratory", ["Substance1", "Substance2"])
+    expect(() => labo.add(null, 2).toThrow("Veuillez entrer un nom de substance"))
+})
+
+test("ajout nouveau produit nom invalide", () => {
+    const labo = new Laboratory("My laboratory", ["Substance1", "Substance2"])
+    expect(() => labo.add(123, 2).toThrow("Veuillez entrer un nom de substance valide"))
+})
+
+test("ajout nouveau produit quantité invalide", () => {
+    const labo = new Laboratory("My laboratory", ["Substance1", "Substance2"])
+    expect(() => labo.add("ProdA", "10").toThrow("Veuillez entrer une quantité valide"))
+})
+
