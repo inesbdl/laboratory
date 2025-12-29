@@ -4,14 +4,27 @@ const { Laboratory } = require('../src/Laboratory.js');
 // Initialiser
 
 test('initialisation du laboratoire', () => {
-    const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])    
-
+    const reactions = {
+        ProduitA: [
+            [2, "Substance1"],
+            [1, "Substance2"]
+        ],
+        ProduitB: [
+            [3, "Substance2"],
+            [1, "Substance3"]
+        ]
+    }
+    const labo = new Laboratory(
+        "My laboratory",
+        ["Substance1", "Substance2", "Substance3"], reactions
+    )
     expect(labo.name).toBe("My laboratory");
     expect(labo.substances).toEqual({
-    Substance1 : 0,
-    Substance2 : 0,
-    Substance3 : 0
+        Substance1 : 0,
+        Substance2 : 0,
+        Substance3 : 0
     })
+    expect(labo.reactions).toEqual(reactions)
 });
 
 test('initialisation du laboratoire type nom invalide', ()=>{
@@ -68,16 +81,16 @@ test("ajout quantité substance nom null", ()=>{
 })
 test("ajout quantité substance nom pas string", ()=>{
     const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
-    expect(()=> labo.add({name:"coucou"}, 2).toThrow("Veuillez entrer un nom de substance valide"))
+    expect(() => labo.add({name:"coucou"}, 2).toThrow("Veuillez entrer un nom de substance valide"))
 })
 
 test("ajout quantité substance qte null", ()=>{
     const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
-    expect(()=> labo.add("Substance1", null).toThrow("Veuillez entrer une quantité"))
+    expect(() => labo.add("Substance1", null).toThrow("Veuillez entrer une quantité"))
 })
 test("ajout quantité substance qte invalide", ()=>{
     const labo = new Laboratory("My laboratory",["Substance1", "Substance2", "Substance3"])
-    expect(()=> labo.add("Substance1", []).toThrow("Veuillez entrer une quantité valide"))
+    expect(() => labo.add("Substance1", []).toThrow("Veuillez entrer une quantité valide"))
 })
 
 
@@ -104,3 +117,262 @@ test("ajout nouveau produit quantité invalide", () => {
     expect(() => labo.add("ProdA", "10").toThrow("Veuillez entrer une quantité valide"))
 })
 
+// tests reactions
+
+test('initialisation reactions valides', () => {
+    const reactions = {
+        ProduitA: [
+            [2, "Substance1"],
+            [1, "Substance2"]
+        ]
+    }
+
+    const labo = new Laboratory(
+        "My laboratory",
+        ["Substance1", "Substance2"],
+        reactions
+    )
+
+    expect(labo.reactions).toEqual(reactions)
+})
+
+test('initialisation reactions vide', () => {
+    expect(() =>
+        new Laboratory(
+            "My laboratory",
+            ["Substance1"],
+            []
+        )
+    ).toThrow("Veuillez entrer des reactions valides")
+})
+
+test('initialisation reactions pas un objet', () => {
+    expect(() =>
+        new Laboratory(
+            "My laboratory",
+            ["Substance1"],
+            "reactions"
+        )
+    ).toThrow("Veuillez entrer des reactions valides")
+})
+
+// nom de pdt
+test('initialisation reactions nom de produit non string', () => {
+    const reactions = {
+        123: [
+            [1, "Substance1"],
+            [1, "Substance2"]
+        ]
+    }
+
+    expect(() =>
+        new Laboratory(
+            "My laboratory",
+            ["Substance1", "Substance2"],
+            reactions
+        )
+    ).toThrow("Veuillez entrer des noms de produit valides")
+})
+
+test('initialisation reactions nom de produit vide', () => {
+    const reactions = {
+        "": [
+            [1, "Substance1"],
+            [1, "Substance2"]
+        ]
+    }
+
+    expect(() =>
+        new Laboratory(
+            "My laboratory",
+            ["Substance1", "Substance2"],
+            reactions
+        )
+    ).toThrow("Veuillez entrer des noms de produit valides")
+})
+
+test('chaque reaction doit avoir au moins deux reactifs', () => {
+    const reactions = {
+        ProduitA: [
+            [2, "Substance1"]
+        ]
+    }
+
+    expect(() =>
+        new Laboratory(
+            "My laboratory",
+            ["Substance1", "Substance2"],
+            reactions
+        )
+    ).toThrow("Chaque réaction doit avoir au moins deux réactifs")
+})
+
+test('liste de reactifs vide pour un produit', () => {
+    const reactions = {
+        ProduitA: []
+    }
+
+    expect(() =>
+        new Laboratory(
+            "My laboratory",
+            ["Substance1"],
+            reactions
+        )
+    ).toThrow("Chaque réaction doit avoir au moins deux réactifs")
+})
+
+test('reactif doit etre un couple [quantite, substance]', () => {
+    const reactions = {
+        ProduitA: [
+            [1, "Substance1", "extra"],
+            [1, "Substance2"]
+        ]
+    }
+
+    expect(() =>
+        new Laboratory(
+            "My laboratory",
+            ["Substance1", "Substance2"],
+            reactions
+        )
+    ).toThrow("Veuillez entrer des couples quantité substance valides")
+})
+
+test('reactif non tableau', () => {
+    const reactions = {
+        ProduitA: [
+            "Substance1",
+            [1, "Substance2"]
+        ]
+    }
+
+    expect(() =>
+        new Laboratory(
+            "My laboratory",
+            ["Substance1", "Substance2"],
+            reactions
+        )
+    ).toThrow("Veuillez entrer des couples quantité substance valides")
+})
+
+// qte
+test('quantité nulle', () => {
+    const reactions = {
+        ProduitA: [
+            [null, "Substance1"],
+            [1, "Substance2"]
+        ]
+    }
+
+    expect(() =>
+        new Laboratory(
+            "My laboratory",
+            ["Substance1", "Substance2"],
+            reactions
+        )
+    ).toThrow("Veuillez entrer des couples quantité substance valides")
+})
+
+test('quantité negative', () => {
+    const reactions = {
+        ProduitA: [
+            [-1, "Substance1"],
+            [1, "Substance2"]
+        ]
+    }
+
+    expect(() =>
+        new Laboratory(
+            "My laboratory",
+            ["Substance1", "Substance2"],
+            reactions
+        )
+    ).toThrow("La quantité doit être un nombre strictement positif")
+})
+
+test('quantité egale a zero', () => {
+    const reactions = {
+        ProduitA: [
+            [0, "Substance1"],
+            [1, "Substance2"]
+        ]
+    }
+
+    expect(() =>
+        new Laboratory(
+            "My laboratory",
+            ["Substance1", "Substance2"],
+            reactions
+        )
+    ).toThrow("La quantité doit être un nombre strictement positif")
+})
+
+test('quantité non numerique', () => {
+    const reactions = {
+        ProduitA: [
+            ["deux", "Substance1"],
+            [1, "Substance2"]
+        ]
+    }
+
+    expect(() =>
+        new Laboratory(
+            "My laboratory",
+            ["Substance1", "Substance2"],
+            reactions
+        )
+    ).toThrow("Veuillez entrer des couples quantité substance valides")
+})
+
+// substantce
+test('substance non string', () => {
+    const reactions = {
+        ProduitA: [
+            [2, 123],
+            [1, "Substance2"]
+        ]
+    }
+
+    expect(() =>
+        new Laboratory(
+            "My laboratory",
+            ["Substance1", "Substance2"],
+            reactions
+        )
+    ).toThrow("Veuillez entrer des couples quantité substance valides")
+})
+
+test('substance inconnue du laboratoire', () => {
+    const reactions = {
+        ProduitA: [
+            [1, "SubstanceInconnue"],
+            [1, "Substance2"]
+        ]
+    }
+
+    expect(() =>
+        new Laboratory(
+            "My laboratory",
+            ["Substance2"],
+            reactions
+        )
+    ).toThrow("Substance inconnue")
+})
+
+// doublons
+test('doublon de substance dans une reaction', () => {
+    const reactions = {
+        ProduitA: [
+            [1, "Substance1"],
+            [2, "Substance1"]
+        ]
+    }
+
+    expect(() =>
+        new Laboratory(
+            "My laboratory",
+            ["Substance1"],
+            reactions
+        )
+    ).toThrow("Une reaction ne peut pas contenir deux fois la meme substance")
+})
