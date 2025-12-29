@@ -544,3 +544,144 @@ test('make avec quantité negative', () => {
         labo.make("ProduitA", -1)
     ).toThrow("La quantité doit être strictement positive")
 })
+
+// make pdt
+test('utiliser un produit comme reactif si present en stock', () => {
+    const reactions = {
+        ProduitA: [
+            [1, "Substance1"]
+        ],
+        ProduitB: [
+            [2, "ProduitA"]
+        ]
+    }
+
+    const labo = new Laboratory(
+        "Lab",
+        ["Substance1"],
+        reactions
+    )
+
+    labo.add("ProduitA", 4)
+
+    const produced = labo.make("ProduitB", 2)
+
+    expect(produced).toBe(2)
+    expect(labo.getQuantity("ProduitA")).toBe(0)
+    expect(labo.getQuantity("ProduitB")).toBe(2)
+})
+
+test('fabriquer automatiquement un reactif produit manquant', () => {
+    const reactions = {
+        ProduitA: [
+            [1, "Substance1"]
+        ],
+        ProduitB: [
+            [2, "ProduitA"]
+        ]
+    }
+
+    const labo = new Laboratory(
+        "Lab",
+        ["Substance1"],
+        reactions
+    )
+
+    labo.add("Substance1", 5)
+
+    const produced = labo.make("ProduitB", 2)
+
+    expect(produced).toBe(2)
+    expect(labo.getQuantity("ProduitA")).toBe(0)
+    expect(labo.getQuantity("ProduitB")).toBe(2)
+    expect(labo.getQuantity("Substance1")).toBe(1)
+})
+
+test('limite par la production possible du reactif produit', () => {
+    const reactions = {
+        ProduitA: [
+            [2, "Substance1"]
+        ],
+        ProduitB: [
+            [1, "ProduitA"]
+        ]
+    }
+
+    const labo = new Laboratory(
+        "Lab",
+        ["Substance1"],
+        reactions
+    )
+
+    labo.add("Substance1", 3)
+
+    const produced = labo.make("ProduitB", 2)
+
+    expect(produced).toBe(1)
+    expect(labo.getQuantity("ProduitA")).toBe(0)
+    expect(labo.getQuantity("Substance1")).toBe(1)
+})
+
+test('utiliser le stock existant avant de produire un reactif', () => {
+    const reactions = {
+        ProduitA: [
+            [1, "Substance1"]
+        ],
+        ProduitB: [
+            [2, "ProduitA"]
+        ]
+    }
+
+    const labo = new Laboratory(
+        "Lab",
+        ["Substance1"],
+        reactions
+    )
+
+    labo.add("ProduitA", 1)
+    labo.add("Substance1", 10)
+
+    const produced = labo.make("ProduitB", 1)
+
+    expect(produced).toBe(0)
+    expect(labo.getQuantity("ProduitA")).toBe(1)
+})
+
+test('erreur si un reactif produit n a pas de reaction', () => {
+    const reactions = {
+        ProduitB: [
+            [1, "ProduitA"]
+        ]
+    }
+
+    const labo = new Laboratory(
+        "Lab",
+        ["Substance1"],
+        reactions
+    )
+
+    expect(() =>
+        labo.make("ProduitB", 1)
+    ).toThrow("Aucune reaction pour le reactif ProduitA")
+})
+
+test('boucle de reactions', () => {
+    const reactions = {
+        ProduitA: [
+            [1, "ProduitB"]
+        ],
+        ProduitB: [
+            [1, "ProduitA"]
+        ]
+    }
+
+    const labo = new Laboratory(
+        "Lab",
+        ["Substance1"],
+        reactions
+    )
+
+    expect(() =>
+        labo.make("ProduitA", 1)
+    ).toThrow("Boucle de reactions detectee")
+})
