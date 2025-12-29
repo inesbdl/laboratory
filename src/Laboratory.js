@@ -110,6 +110,48 @@ class Laboratory{
         this.substances[substance] += qte
     }
 
+    make(product, quantity) {
+
+        if (!product) throw new Error("Veuillez entrer un nom de produit")
+        if (typeof product !== "string") throw new Error("Veuillez entrer un nom de produit valide")
+
+        if (!(product in this.reactions)) {
+            throw new Error("Aucune reaction pour ce produit")
+        }
+
+        if (!quantity) throw new Error("Veuillez entrer une quantité")
+        if (typeof quantity !== "number") throw new Error("Veuillez entrer une quantité valide")
+        if (quantity <= 0) throw new Error("La quantité doit être strictement positive")
+
+        const reactifs = this.reactions[product]
+
+        let maxPossible = Infinity
+
+        reactifs.forEach(([qteNeeded, substance]) => {
+            const available = this.substances[substance] || 0
+            const possible = Math.floor(available / qteNeeded)
+            maxPossible = Math.min(maxPossible, possible)
+        })
+
+        const quantityToProduce = Math.min(quantity, maxPossible)
+
+        if (!(product in this.substances)) {
+            this.substances[product] = 0
+        }
+
+        if (quantityToProduce === 0) {
+            return 0
+        }
+
+        reactifs.forEach(([qteNeeded, substance]) => {
+            this.substances[substance] -= qteNeeded * quantityToProduce
+        })
+
+        this.substances[product] += quantityToProduce
+
+        return quantityToProduce
+    }
+
 }
 
 module.exports = {Laboratory}
