@@ -156,23 +156,23 @@ test('initialisation reactions pas un objet', () => {
     ).toThrow("Veuillez entrer des reactions valides")
 })
 
-// nom de pdt
-test('initialisation reactions nom de produit non string', () => {
-    const reactions = {
-        123: [
-            [1, "Substance1"],
-            [1, "Substance2"]
-        ]
-    }
+// nom de pdt enlevé car clé obj toujours convertie en string donc impossible de tester
+// test('initialisation reactions nom de produit non string', () => {
+//     const reactions = {
+//         123: [
+//             [1, "Substance1"],
+//             [1, "Substance2"]
+//         ]
+//     }
 
-    expect(() =>
-        new Laboratory(
-            "My laboratory",
-            ["Substance1", "Substance2"],
-            reactions
-        )
-    ).toThrow("Veuillez entrer des noms de produit valides")
-})
+//     expect(() =>
+//         new Laboratory(
+//             "My laboratory",
+//             ["Substance1", "Substance2"],
+//             reactions
+//         )
+//     ).toThrow("Veuillez entrer des noms de produit valides")
+// })
 
 test('initialisation reactions nom de produit vide', () => {
     const reactions = {

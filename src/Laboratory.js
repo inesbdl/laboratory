@@ -2,22 +2,87 @@
 
 class Laboratory{
 
-    constructor(name,substancesList){
+    constructor(name, substancesList, reactions = {}) {
 
-        if(typeof name !== "string") throw new Error("Veuillez entrer un nom de laboratoire valide")
-        if(!name) throw new Error("Veuillez entrer un nom de laboratoire")
+        if (typeof name !== "string") throw new Error("Veuillez entrer un nom de laboratoire valide")
+        if (!name) throw new Error("Veuillez entrer un nom de laboratoire")
 
-        if(!substancesList || substancesList.length === 0) throw new Error("Veuillez entrer au moins une substance")
+        if (!substancesList || substancesList.length === 0) {
+            throw new Error("Veuillez entrer au moins une substance")
+        }
 
         substancesList.forEach(substance => {
-            if(typeof substance !== "string") throw new Error("Veuillez entrer des noms de substance valides")
+            if (typeof substance !== "string") {
+                throw new Error("Veuillez entrer des noms de substance valides")
+            }
         })
 
-        this.name = name;
-        this.substances = {};
+        this.name = name
+        this.substances = {}
         substancesList.forEach(substance => {
             this.substances[substance] = 0
-        });
+        })
+
+        if (typeof reactions !== "object" || Array.isArray(reactions)) {
+            throw new Error("Veuillez entrer des reactions valides")
+        }
+
+        const reactionEntries = Object.entries(reactions)
+
+        if (reactionEntries.length === 0) {
+            this.reactions = {}
+            return
+        }
+
+        reactionEntries.forEach(([productName, reactifs]) => {
+
+            // nom du produit
+            if (typeof productName !== "string" || !productName) {
+                throw new Error("Veuillez entrer des noms de produit valides")
+            }
+
+            // reactifs
+            if (!Array.isArray(reactifs) || reactifs.length < 2) {
+                throw new Error("Chaque réaction doit avoir au moins deux réactifs")
+            }
+
+            const seenSubstances = new Set()
+
+            reactifs.forEach(reactif => {
+
+                if (!Array.isArray(reactif) || reactif.length !== 2) {
+                    throw new Error("Veuillez entrer des couples quantité substance valides")
+                }
+
+                const [quantite, substance] = reactif
+
+                // quantité
+                if (quantite === null || typeof quantite !== "number") {
+                    throw new Error("Veuillez entrer des couples quantité substance valides")
+                }
+
+                if (quantite <= 0) {
+                    throw new Error("La quantité doit être un nombre strictement positif")
+                }
+
+                // substance
+                if (typeof substance !== "string") {
+                    throw new Error("Veuillez entrer des couples quantité substance valides")
+                }
+
+                if (!(substance in this.substances)) {
+                    throw new Error("Substance inconnue")
+                }
+
+                if (seenSubstances.has(substance)) {
+                    throw new Error("Une reaction ne peut pas contenir deux fois la meme substance")
+                }
+
+                seenSubstances.add(substance)
+            })
+        })
+
+        this.reactions = reactions
     }
 
     getQuantity(substance) {
