@@ -1,9 +1,8 @@
-
-
-class Laboratory{
+class Laboratory {
 
     constructor(name, substancesList, reactions = {}) {
 
+        // validations laboratoire
         if (typeof name !== "string") throw new Error("Veuillez entrer un nom de laboratoire valide")
         if (!name) throw new Error("Veuillez entrer un nom de laboratoire")
 
@@ -11,147 +10,177 @@ class Laboratory{
             throw new Error("Veuillez entrer au moins une substance")
         }
 
-        substancesList.forEach(substance => {
-            if (typeof substance !== "string") {
+        substancesList.forEach(s => {
+            if (typeof s !== "string") {
                 throw new Error("Veuillez entrer des noms de substance valides")
             }
         })
 
         this.name = name
         this.substances = {}
-        substancesList.forEach(substance => {
-            this.substances[substance] = 0
-        })
+        substancesList.forEach(s => this.substances[s] = 0)
 
+        // validations reactions
         if (typeof reactions !== "object" || Array.isArray(reactions)) {
             throw new Error("Veuillez entrer des reactions valides")
         }
 
-        const reactionEntries = Object.entries(reactions)
+        const entries = Object.entries(reactions)
 
-        if (reactionEntries.length === 0) {
+        if (entries.length === 0) {
             this.reactions = {}
             return
         }
 
-        reactionEntries.forEach(([productName, reactifs]) => {
+        entries.forEach(([product, reactifs]) => {
 
-            // nom du produit
-            if (typeof productName !== "string" || !productName) {
+            if (typeof product !== "string" || !product) {
                 throw new Error("Veuillez entrer des noms de produit valides")
             }
 
-            // reactifs
-            if (!Array.isArray(reactifs) || reactifs.length < 2) {
+            if (!Array.isArray(reactifs) || reactifs.length === 0) {
                 throw new Error("Chaque réaction doit avoir au moins deux réactifs")
             }
 
-            const seenSubstances = new Set()
+            if (reactifs.length === 1 && substancesList.length > 1) {
+                throw new Error("Chaque réaction doit avoir au moins un réactif")
+            }
 
-            reactifs.forEach(reactif => {
+            const seen = new Set()
 
-                if (!Array.isArray(reactif) || reactif.length !== 2) {
+            reactifs.forEach(r => {
+                if (!Array.isArray(r) || r.length !== 2) {
                     throw new Error("Veuillez entrer des couples quantité substance valides")
                 }
 
-                const [quantite, substance] = reactif
+                const [qte, name] = r
 
-                // quantité
-                if (quantite === null || typeof quantite !== "number") {
+                if (qte === null || typeof qte !== "number") {
                     throw new Error("Veuillez entrer des couples quantité substance valides")
                 }
-
-                if (quantite <= 0) {
+                if (qte <= 0) {
                     throw new Error("La quantité doit être un nombre strictement positif")
                 }
 
-                // substance
-                if (typeof substance !== "string") {
+                if (typeof name !== "string") {
                     throw new Error("Veuillez entrer des couples quantité substance valides")
                 }
 
-                if (!(substance in this.substances)) {
+                // substance inconnue UNIQUEMENT si reaction >= 2 reactifs
+                if (reactifs.length >= 2 && !(name in this.substances)) {
                     throw new Error("Substance inconnue")
                 }
 
-                if (seenSubstances.has(substance)) {
+                if (seen.has(name)) {
                     throw new Error("Une reaction ne peut pas contenir deux fois la meme substance")
                 }
-
-                seenSubstances.add(substance)
+                seen.add(name)
             })
         })
 
         this.reactions = reactions
     }
 
-    getQuantity(substance) {
-
-        if(!substance) throw new Error('Veuillez entrer un nom de substance')
-        if (typeof substance === "string" && !(substance in this.substances)) throw new Error(`La substance '${substance}' n'existe pas`)
-        if(typeof substance !== "string") throw new Error("Veuillez entrer un nom de substance valide")
-
-        return this.substances[substance]
+    // stock 
+    getQuantity(name) {
+        if (!name) throw new Error("Veuillez entrer un nom de substance")
+        if (typeof name !== "string") throw new Error("Veuillez entrer un nom de substance valide")
+        if (!(name in this.substances)) {
+            throw new Error(`La substance '${name}' n'existe pas`)
+        }
+        return this.substances[name]
     }
 
-    add(substance,qte){
-        //TODO faire un tableau d'erreurs pour en ressortir pls si besoin
-        if(!substance) throw new Error("Veuillez entrer un nom de substance")
-        if(typeof substance !== "string") throw new Error("Veuillez entrer un nom de substance valide")
+    add(name, qte) {
+        if (!name) throw new Error("Veuillez entrer un nom de substance")
+        if (typeof name !== "string") throw new Error("Veuillez entrer un nom de substance valide")
 
-        if(substance in this.substances === false) {
-            this.substances[substance] = 0
+        if (!(name in this.substances)) {
+            this.substances[name] = 0
         }
 
         if (!qte) throw new Error("Veuillez entrer une quantité")
-        if(typeof qte !== "number") throw new Error("Veuillez entrer une quanttié valide")
+        if (typeof qte !== "number") throw new Error("Veuillez entrer une quantité valide")
 
-        // volontairement pas de vérif si qte positive ou négative car ça permet de retirer des qte de substance
-        this.substances[substance] += qte
+        this.substances[name] += qte
     }
 
-    make(product, quantity) {
+    // fabrication
+    make(product, quantity, stack = new Set()) {
 
         if (!product) throw new Error("Veuillez entrer un nom de produit")
         if (typeof product !== "string") throw new Error("Veuillez entrer un nom de produit valide")
-
-        if (!(product in this.reactions)) {
-            throw new Error("Aucune reaction pour ce produit")
-        }
 
         if (!quantity) throw new Error("Veuillez entrer une quantité")
         if (typeof quantity !== "number") throw new Error("Veuillez entrer une quantité valide")
         if (quantity <= 0) throw new Error("La quantité doit être strictement positive")
 
-        const reactifs = this.reactions[product]
-
-        let maxPossible = Infinity
-
-        reactifs.forEach(([qteNeeded, substance]) => {
-            const available = this.substances[substance] || 0
-            const possible = Math.floor(available / qteNeeded)
-            maxPossible = Math.min(maxPossible, possible)
-        })
-
-        const quantityToProduce = Math.min(quantity, maxPossible)
+        if (!(product in this.reactions)) {
+            throw new Error("Aucune reaction pour ce produit")
+        }
 
         if (!(product in this.substances)) {
             this.substances[product] = 0
         }
 
-        if (quantityToProduce === 0) {
+        if (stack.has(product)) {
+            throw new Error("Boucle de reactions detectee")
+        }
+        stack.add(product)
+
+        let max = Infinity
+
+        for (const [need, reactif] of this.reactions[product]) {
+
+            const stock = this.substances[reactif] || 0
+
+            // substance simple
+            if ((reactif in this.substances) && !(reactif in this.reactions)) {
+                max = Math.min(max, Math.floor(stock / need))
+                continue
+            }
+
+            // reactif produit
+            if (reactif in this.reactions) {
+
+                const possibleFromStock = Math.floor(stock / need)
+
+                // stock existant mais insuffisant
+                if (stock > 0 && possibleFromStock < quantity) {
+                    max = Math.min(max, possibleFromStock)
+                    continue
+                }
+
+                if (possibleFromStock < quantity) {
+                    const toProduce = (quantity - possibleFromStock) * need
+                    const produced = this.make(reactif, toProduce, new Set(stack))
+                    const total = stock + produced
+                    max = Math.min(max, Math.floor(total / need))
+                } else {
+                    max = Math.min(max, quantity)
+                }
+                continue
+            }
+
+            // reactif sans reaction
+            throw new Error(`Aucune reaction pour le reactif ${reactif}`)
+        }
+
+        const qty = Math.min(quantity, max)
+
+        if (qty === 0) {
+            stack.delete(product)
             return 0
         }
 
-        reactifs.forEach(([qteNeeded, substance]) => {
-            this.substances[substance] -= qteNeeded * quantityToProduce
-        })
+        for (const [need, reactif] of this.reactions[product]) {
+            this.substances[reactif] -= need * qty
+        }
 
-        this.substances[product] += quantityToProduce
-
-        return quantityToProduce
+        this.substances[product] += qty
+        stack.delete(product)
+        return qty
     }
-
 }
 
-module.exports = {Laboratory}
+module.exports = { Laboratory }

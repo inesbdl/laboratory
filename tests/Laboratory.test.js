@@ -191,7 +191,7 @@ test('initialisation reactions nom de produit vide', () => {
     ).toThrow("Veuillez entrer des noms de produit valides")
 })
 
-test('chaque reaction doit avoir au moins deux reactifs', () => {
+test('chaque reaction doit avoir au moins un reactif', () => {
     const reactions = {
         ProduitA: [
             [2, "Substance1"]
@@ -204,7 +204,7 @@ test('chaque reaction doit avoir au moins deux reactifs', () => {
             ["Substance1", "Substance2"],
             reactions
         )
-    ).toThrow("Chaque réaction doit avoir au moins deux réactifs")
+    ).toThrow("Chaque réaction doit avoir au moins un réactif")
 })
 
 test('liste de reactifs vide pour un produit', () => {
